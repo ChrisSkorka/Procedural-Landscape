@@ -28,6 +28,11 @@ public class OpenGlWindow {
     private long time_start = System.currentTimeMillis();
     private long time_last = System.currentTimeMillis();
 
+    float backgroundRed = 0;
+    float backgroundGreen = 0;
+    float backgroundBlue = 0;
+    float backgroundAlpha = 0;
+
     private DrawEventListener drawEventListener;
     private KeyboardEventListener keyboardEventListener;
     private MouseEventListener mouseEventListener;
@@ -52,20 +57,18 @@ public class OpenGlWindow {
     }
 
     /**
-     * Sets up and opens a window and begins the draw loop.
+     * Creates window with OpenGL bindings
+     * @param width N of in-game pixels wide
+     * @param height N of in-game pixels high
+     * @param title Title of the window
      */
-    public void open() {
+    public OpenGlWindow(int width, int height, String title){
+
+        this.width = width;
+        this.height = height;
+        this.title = title;
 
         init();
-        loop();
-
-        // Free the window callbacks and destroy the window
-        glfwFreeCallbacks(window);
-        glfwDestroyWindow(window);
-
-        // Terminate GLFW and free the error callback
-        glfwTerminate();
-        glfwSetErrorCallback(null).free();
     }
 
     /**
@@ -97,11 +100,11 @@ public class OpenGlWindow {
             if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
                 glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
 
-            if(action == GLFW_PRESS){
+            if(keyboardEventListener != null && action == GLFW_PRESS){
                 keyboardEventListener.onKeyDown(key);
             }
 
-            if(action == GLFW_RELEASE){
+            if(keyboardEventListener != null && action == GLFW_RELEASE){
                 keyboardEventListener.onKeyUp(key);
             }
 
@@ -131,15 +134,32 @@ public class OpenGlWindow {
         // Enable v-sync
         glfwSwapInterval(1);
 
-        // Make the window visible
-        glfwShowWindow(window);
-
         // This line is critical for LWJGL's interoperation with GLFW's
         // OpenGL context, or any context that is managed externally.
         // LWJGL detects the context that is current in the current thread,
         // creates the GLCapabilities instance and makes the OpenGL
         // bindings available for use.
         GL.createCapabilities();
+    }
+
+    /**
+     * Sets up and opens a window and begins the draw loop.
+     */
+    public void open() {
+
+
+        // Make the window visible
+        glfwShowWindow(window);
+
+        loop();
+
+        // Free the window callbacks and destroy the window
+        glfwFreeCallbacks(window);
+        glfwDestroyWindow(window);
+
+        // Terminate GLFW and free the error callback
+        glfwTerminate();
+        glfwSetErrorCallback(null).free();
     }
 
     /**
@@ -156,18 +176,16 @@ public class OpenGlWindow {
 
             glMatrixMode(GL_PROJECTION);
             glLoadIdentity();
-            glOrtho(0.0, width, 0.0, height, 1.0, -1.0);
+            glOrtho(-1.0,1.0,-1.0,1.0, 1.0, -1.0);
             glMatrixMode(GL_MODELVIEW);
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            glClearColor(0,0,0,0);
+            glClearColor(backgroundRed, backgroundGreen, backgroundBlue, backgroundAlpha);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            glBegin(GL_QUADS);
             if(this.drawEventListener != null)
                 drawEventListener.onDraw(System.currentTimeMillis() - time_start, System.currentTimeMillis() - time_last);
-            glEnd();
 
             time_last = System.currentTimeMillis();
             glfwSwapBuffers(window); // swap the color buffers
@@ -209,7 +227,10 @@ public class OpenGlWindow {
     public void clear(float red, float green, float blue, float alpha){
         glClearColor(red, green, blue, alpha);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+    }
 
+    public void clear(){
+        clear(backgroundRed, backgroundGreen, backgroundBlue, backgroundAlpha);
     }
 
     /**
@@ -242,6 +263,25 @@ public class OpenGlWindow {
         glVertex2i(x, y);
         glVertex2i(x, y);
 
+    }
+
+    public void setDrawEventListener(DrawEventListener drawEventListener) {
+        this.drawEventListener = drawEventListener;
+    }
+
+    public void setKeyboardEventListener(KeyboardEventListener keyboardEventListener) {
+        this.keyboardEventListener = keyboardEventListener;
+    }
+
+    public void setMouseEventListener(MouseEventListener mouseEventListener) {
+        this.mouseEventListener = mouseEventListener;
+    }
+
+    public void setBackground(float red, float green, float blue, float alpha){
+        this.backgroundRed = red;
+        this.backgroundGreen = green;
+        this.backgroundBlue = blue;
+        this.backgroundAlpha = alpha;
     }
 
     /**
