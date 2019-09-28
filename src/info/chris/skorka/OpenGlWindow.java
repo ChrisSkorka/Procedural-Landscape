@@ -110,6 +110,14 @@ public class OpenGlWindow {
 
         });
 
+        glfwSetCursorPosCallback(window, (long window, double xpos, double ypos) -> {
+            if(mouseEventListener != null)
+                mouseEventListener.onMouseMove(xpos, ypos);
+        });
+
+//        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
         // Get the thread stack and push a new frame
         try ( MemoryStack stack = stackPush() ) {
             IntBuffer pWidth = stack.mallocInt(1); // int*
@@ -152,6 +160,9 @@ public class OpenGlWindow {
         glfwShowWindow(window);
 
         loop();
+
+
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
         // Free the window callbacks and destroy the window
         glfwFreeCallbacks(window);
@@ -333,8 +344,9 @@ public class OpenGlWindow {
      * Mouse event callbacks.
      */
     public static abstract class MouseEventListener{
-        public abstract void onMouseDown();
-        public abstract void onMouseUp();
+        public abstract void onMouseMove(double x, double y);
+        public abstract void onMouseDown(int button);
+        public abstract void onMouseUp(int button);
 
     }
 }

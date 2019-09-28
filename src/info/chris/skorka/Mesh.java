@@ -17,11 +17,13 @@ public class Mesh {
     private int vertexBufferID, positionBufferID, indexBufferID, textureID;
 
     private float[]colors = {
-            252/255f, 250/255f, 242/255f, 1f,
-            135/255f, 119/255f, 61/255f,  1f,
-            31/255f,  166/255f, 87/255f,  1f,
-            157/255f, 204/255f, 131/255f, 1f,
             204/255f, 204/255f, 131/255f, 1f,
+            157/255f, 204/255f, 131/255f, 1f,
+            31/255f,  166/255f, 87/255f,  1f,
+            31/255f,  166/255f, 87/255f,  1f,
+            135/255f, 119/255f, 61/255f,  1f,
+            135/255f, 119/255f, 61/255f,  1f,
+            252/255f, 250/255f, 242/255f, 1f,
     };
 
     public static Mesh fromStochasticFractalHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY){

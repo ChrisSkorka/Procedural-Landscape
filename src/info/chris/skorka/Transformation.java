@@ -34,25 +34,26 @@ public class Transformation {
         transform(transformation.matrix);
     }
 
-    public void orthogonalProjection(float l, float r, float b, float t, float n, float f){
-//        transform(new float[][]{
-//                {2/(r-l),0,0,0},
-//                {0,2/(t-b),0,0},
-//                {0,0,-2/(f-n),0},
-//                {-(r+l)/(r-l),-(t+b)/(t-b),-(f+n)/(f-n),1}
-//        });
+    public void orthogonal(float l, float r, float b, float t, float n, float f){
+
         transform(new float[][]{
-                {2/(r-l),0,0,-(r+l)/(r-l)},
-                {0,2/(t-b),0,-(t+b)/(t-b)},
-                {0,0,-2/(f-n),-(f+n)/(f-n)},
-                {0,0,0,1}
+                {2/(r-l),   0,      0,          -(r+l)/(r-l)},
+                {0,         2/(t-b),0,          -(t+b)/(t-b)},
+                {0,         0,      -2/(f-n),   -(f+n)/(f-n)},
+                {0,         0,      0,          1           }
         });
-//        transform(new float[][]{
-//                {2*n/(r-l),0,(r+l)/(r-l),0},
-//                {0,2*n/(t-b),(t+b)/(t-b),0},
-//                {0,0,-(f+n)/(f-n),-2*f*n/(f-n)},
-//                {0,0,1,0}
-//        });
+    }
+
+    public void projection(float fov, float aspect, float f, float n){
+
+        float tanFov_2 = (float)(Math.tan(Math.toRadians(fov)/2));
+
+        transform(new float[][]{
+                {1/aspect/tanFov_2,  0, 0,              0           },
+                {0,         1/tanFov_2, 0,              0           },
+                {0,         0,          -(f+n)/(f-n),   -2*f*n/(f-n)},
+                {0,         0,          -1,             0           }
+        });
     }
 
     public void translate(float x, float y, float z){
