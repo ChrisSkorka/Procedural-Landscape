@@ -2,6 +2,9 @@ package info.chris.skorka;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+import org.lwjgl.system.MemoryUtil;
+
+import java.nio.FloatBuffer;
 
 public class Shader {
 
@@ -59,6 +62,16 @@ public class Shader {
         GL20.glDeleteShader(fragmentShaderID);
 
         available = true;
+    }
+
+    public int getUniformLocation(String name) {
+        return GL20.glGetUniformLocation(programID, name);
+    }
+
+    public void setUniform(String name, float[] floatArray){
+        FloatBuffer matrix = MemoryUtil.memAllocFloat(floatArray.length);
+        matrix.put(floatArray).flip();
+        GL20.glUniformMatrix4fv(getUniformLocation(name), true, matrix);
     }
 
     public void bind(){

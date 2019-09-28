@@ -1,11 +1,15 @@
 #version 330 core
 
-in vec3 vColor;
+//flat smooth noperspective
+smooth in float depth;
+smooth in float height;
 
-out vec4 fColor;
+uniform sampler1D tex;
 
 void main(){
 
-    fColor = vec4(vColor, 1.0);
+    // gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = texture(tex, height);
+    gl_FragDepth = depth ;
 
 }

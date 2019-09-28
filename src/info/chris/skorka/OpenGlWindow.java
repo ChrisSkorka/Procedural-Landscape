@@ -174,14 +174,27 @@ public class OpenGlWindow {
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
 
-            glMatrixMode(GL_PROJECTION);
-            glLoadIdentity();
-            glOrtho(-1.0,1.0,-1.0,1.0, 1.0, -1.0);
-            glMatrixMode(GL_MODELVIEW);
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//            glMatrixMode(GL_PROJECTION);
+//            glLoadIdentity();
+//            glOrtho(0, 1, 0, 1, 1.0f, -1.0f);
+//            glMatrixMode(GL_MODELVIEW);
+//            glLoadIdentity();
+//            glTranslated(1,1,1);
+
+            glViewport(0,0,width,height);
+
+//            glEnable(GL_CULL_FACE);
+//            glCullFace(GL_BACK);
+//            glFrontFace(GL_CCW);
+            glEnable(GL_DEPTH_TEST);
+            glDepthMask(true);
+            glDepthFunc(GL_GREATER);
+            // glEnable(GL_BLEND);
+            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glClearColor(backgroundRed, backgroundGreen, backgroundBlue, backgroundAlpha);
+            glClearDepth(0);
+            // glDepthRange(-3, 3);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if(this.drawEventListener != null)
