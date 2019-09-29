@@ -13,7 +13,7 @@ public class FractalLandscape {
     private static final int HEIGHT = 900;
 
     private static final int MAP_RADIUS = 3;
-    private static final int MAP_RESOLUTION = 1000;
+    private static final int MAP_RESOLUTION = 100;
 
     private double lastMouseX = 0;
     private double lastMouseY = 0;

@@ -1,4 +1,4 @@
-#version 330 core
+#version 430 core
 
 //flat smooth noperspective
 smooth in float depth;

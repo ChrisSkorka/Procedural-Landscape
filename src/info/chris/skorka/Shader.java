@@ -39,6 +39,7 @@ public class Shader {
 
         if(GL20.glGetShaderi(fragmentShaderID, GL20.GL_COMPILE_STATUS) == GL11.GL_FALSE) {
             System.err.println("Failed compiling '" + shaderBaseBath + ".fs.glsl'");
+            System.err.println(GL20.glGetShaderInfoLog(fragmentShaderID, GL20.glGetShaderi(fragmentShaderID, GL20.GL_INFO_LOG_LENGTH)));
             return;
         }
 
