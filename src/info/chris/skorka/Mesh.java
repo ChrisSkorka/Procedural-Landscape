@@ -9,14 +9,17 @@ import java.util.Random;
 
 public class Mesh {
 
+    private static final int NOISE_TEXTURE_SIZE = 5000;
+
     private Shader shader;
     private Transformation transformation = new Transformation();
 
     private Vertex[] vertices;
     private int[] indices;
-    private int vertexBufferID, positionBufferID, indexBufferID, textureID;
+    private int vertexBufferID, positionBufferID, indexBufferID, heightTextureID, noiseTextureID;
 
-    private float[] texture;
+    private float[] heightTexture;
+    private float[] noiseTexture;
 
     public static Mesh fromStochasticFractalHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY, float[]texture){
 
@@ -28,22 +31,67 @@ public class Mesh {
         Vertex[] vertices = new Vertex[countY * countX];
         int[] indices = new int[(countX-1) * (countY-1) * 4];
 
+        for(int ix = 0; ix < countX; ix += 16){
+            float x = left + ix * dx;
+            for(int iy = 0; iy < countY; iy += 16){
+                float y = bottom + iy * dy;
+                float z = random.nextFloat() * height;
+                int iv = iy * countX + ix;
+
+                vertices[iv] = new Vertex(x, y, z);
+            }
+        }
+
+        for(int ix = 0; ix < countX; ix += 8){
+            float x = left + ix * dx;
+            for(int iy = 0; iy < countY; iy += 8){
+                if(ix % 16 != 0 && iy % 16 != 0) {
+                    float y = bottom + iy * dy;
+                    float z = random.nextFloat() * height;
+                    int iv = iy * countX + ix;
+
+                    vertices[iv] = new Vertex(x, y, z);
+                }
+            }
+        }
+
+
+
+        // construct quads indices
+        for(int ix = 0; ix < countX-1; ix++){
+            for(int iy = 0; iy < countY-1; iy++){
+
+                int iv = 4 * (iy * (countX - 1) + ix);
+
+                indices[iv + 0] = (iy + 0) * countX + ix + 0;
+                indices[iv + 1] = (iy + 0) * countX + ix + 1;
+                indices[iv + 2] = (iy + 1) * countX + ix + 1;
+                indices[iv + 3] = (iy + 1) * countX + ix + 0;
+            }
+        }
+
+
+
+        return new Mesh(vertices, indices, texture);
+    }
+
+    public static Mesh fromPerlinNoiseHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY, float[]texture){
+
+        Random random = new Random(0x123456789ABCDEFL);
+        Noise noise = new Noise(5, 0, height);
+
+        float dx = (right - left) / (countX - 1);
+        float dy = (top - bottom) / (countY - 1);
+
+        Vertex[] vertices = new Vertex[countY * countX];
+        int[] indices = new int[(countX-1) * (countY-1) * 4];
+
         for(int ix = 0; ix < countX; ix++){
             float x = left + ix * dx;
             for(int iy = 0; iy < countY; iy++){
                 float y = bottom + iy * dy;
-                // float z = random.nextFloat() * height;
 
-                double xyscale = 2;
-                double noiser = random.nextDouble() * 0.1f; noiser = 0;
-                double noise1 = Noise.noise(x*1*xyscale,y*1*xyscale,0);
-                double noise2 = Noise.noise(x*2*xyscale,y*2*xyscale,1) / 2;
-                double noise3 = Noise.noise(x*3*xyscale,y*3*xyscale,2) / 3;
-                double noise4 = Noise.noise(x*4*xyscale,y*4*xyscale,3) / 4;
-                double noise5 = Noise.noise(x*5*xyscale,y*5*xyscale,4) / 5;
-
-
-                float z = (float) (noiser + noise1 + noise2 + noise3 + noise4 + noise5) / 2 + 0.5f;
+                float z = (float) noise.sample(x, y);
 
                 int iv = iy * countX + ix;
 
@@ -69,10 +117,22 @@ public class Mesh {
         return new Mesh(vertices, indices, texture);
     }
 
-    public Mesh(Vertex[]  vertices, int[] indices, float[]texture){
+    public static Mesh fromPlane(float left, float right, float bottom, float top, float height, float[]texture){
+        return new Mesh(new Vertex[]{
+                new Vertex(left, bottom, height),
+                new Vertex( right, bottom, height),
+                new Vertex( right,  top, height),
+                new Vertex(left,  top, height),
+        }, new int[]{
+                0,1,2,3
+        }, texture);
+    }
+
+    public Mesh(Vertex[]  vertices, int[] indices, float[] heightTexture){
         this.vertices = vertices;
         this.indices = indices;
-        this.texture = texture;
+        this.heightTexture = heightTexture;
+        this.noiseTexture = getNoiseTexture(NOISE_TEXTURE_SIZE, NOISE_TEXTURE_SIZE);
 
         vertexBufferID = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(vertexBufferID);
@@ -94,16 +154,29 @@ public class Mesh {
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(texture.length);
-        textureBuffer.put(texture).flip();
+        // height heightTexture
+        FloatBuffer heightTextureBuffer = MemoryUtil.memAllocFloat(heightTexture.length);
+        heightTextureBuffer.put(heightTexture).flip();
 
-        textureID = GL46.glGenTextures();
-        GL11.glBindTexture(GL11.GL_TEXTURE_1D, textureID);
+        heightTextureID = GL46.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_1D, heightTextureID);
         GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
         GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL11.GL_RGBA, texture.length/4, 0,GL11.GL_RGBA, GL11.GL_FLOAT, textureBuffer);
-        GL11.glBindTexture(GL11.GL_TEXTURE_1D, textureID);
+        GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL11.GL_RGBA, heightTexture.length/4, 0,GL11.GL_RGBA, GL11.GL_FLOAT, heightTextureBuffer);
+        GL11.glBindTexture(GL11.GL_TEXTURE_1D, heightTextureID);
+
+        // noise heightTexture
+        FloatBuffer noiseTextureBuffer = MemoryUtil.memAllocFloat(noiseTexture.length);
+        noiseTextureBuffer.put(noiseTexture).flip();
+
+        noiseTextureID = GL46.glGenTextures();
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, noiseTextureID);
+        GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, NOISE_TEXTURE_SIZE, NOISE_TEXTURE_SIZE, 0,GL11.GL_RGBA, GL11.GL_FLOAT, noiseTextureBuffer);
+        GL11.glBindTexture(GL11.GL_TEXTURE_2D, noiseTextureID);
     }
 
     private int storeAttributeData(float[] data, int index, int size){
@@ -125,7 +198,9 @@ public class Mesh {
         GL30.glEnableVertexAttribArray(0);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, indexBufferID);
         GL15.glActiveTexture(GL13.GL_TEXTURE0);
-        GL15.glBindTexture(GL11.GL_TEXTURE_1D, textureID);
+        GL15.glBindTexture(GL11.GL_TEXTURE_1D, heightTextureID);
+        GL15.glActiveTexture(GL13.GL_TEXTURE1);
+        GL15.glBindTexture(GL11.GL_TEXTURE_2D, noiseTextureID);
 
         if(shader != null) {
             shader.bind();
@@ -140,6 +215,22 @@ public class Mesh {
         GL30.glBindVertexArray(0);
     }
 
+    private float[] getNoiseTexture(int x, int y){
+
+        Random random = new Random();
+        float[] texture = new float[x*y*4];
+
+        for(int i = 0; i < x*y; i++){
+            float v = random.nextFloat();
+            texture[4*i + 0] = v;
+            texture[4*i + 1] = v;
+            texture[4*i + 2] = v;
+            texture[4*i + 3] = 1;
+        }
+
+        return texture;
+    }
+
     public void setShader(Shader shader) {
         this.shader = shader;
     }
@@ -149,7 +240,7 @@ public class Mesh {
     }
 
     public void set1DTexture(float[] texture){
-        this.texture = texture;
+        this.heightTexture = texture;
     }
 
     public void setVertices(Vertex[] vertices) {

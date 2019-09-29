@@ -12,6 +12,9 @@ public class FractalLandscape {
     private static final int WIDTH = 1500;
     private static final int HEIGHT = 900;
 
+    private static final int MAP_RADIUS = 3;
+    private static final int MAP_RESOLUTION = 1000;
+
     private double lastMouseX = 0;
     private double lastMouseY = 0;
     private float moveForward = 0;
@@ -45,11 +48,17 @@ public class FractalLandscape {
 
         float[] heightColors = {
                 204/255f, 204/255f, 131/255f, 1f,
+                204/255f, 204/255f, 131/255f, 1f,
+                204/255f, 204/255f, 131/255f, 1f,
+                204/255f, 204/255f, 131/255f, 1f,
                 157/255f, 204/255f, 131/255f, 1f,
                 31/255f,  166/255f, 87/255f,  1f,
                 31/255f,  166/255f, 87/255f,  1f,
                 135/255f, 119/255f, 61/255f,  1f,
                 135/255f, 119/255f, 61/255f,  1f,
+                252/255f, 250/255f, 242/255f, 1f,
+                252/255f, 250/255f, 242/255f, 1f,
+                252/255f, 250/255f, 242/255f, 1f,
                 252/255f, 250/255f, 242/255f, 1f,
         };
 //        float[] heightColors = {
@@ -76,18 +85,11 @@ public class FractalLandscape {
 //                252/255f, 250/255f, 242/255f, 1f,
 //        };
 
-        Mesh terrain = Mesh.fromStochasticFractalHeightMap(-1,1,-1,1,1.0f,100,100, heightColors);
+        Mesh terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS,1.0f, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors);
         terrain.setShader(shader);
 
-        Mesh water = new Mesh(new Vertex[]{
-                new Vertex(-1f, -1f, 0),
-                new Vertex( 1f, -1f, 0),
-                new Vertex( 1f,  1f, 0),
-                new Vertex(-1f,  1f, 0),
-        }, new int[]{
-                0,1,2,3
-        }, new float[]{
-            0/255f, 90/255f, 190/255f, 0.7f
+        Mesh water = Mesh.fromPlane(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, 0, new float[]{
+                0/255f, 90/255f, 190/255f, 0.5f
         });
         water.setShader(shader);
 
