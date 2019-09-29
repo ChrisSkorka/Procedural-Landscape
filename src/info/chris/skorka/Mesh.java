@@ -32,7 +32,18 @@ public class Mesh {
             float x = left + ix * dx;
             for(int iy = 0; iy < countY; iy++){
                 float y = bottom + iy * dy;
-                float z = random.nextFloat() * height;
+                // float z = random.nextFloat() * height;
+
+                double xyscale = 2;
+                double noiser = random.nextDouble() * 0.1f; noiser = 0;
+                double noise1 = Noise.noise(x*1*xyscale,y*1*xyscale,0);
+                double noise2 = Noise.noise(x*2*xyscale,y*2*xyscale,1) / 2;
+                double noise3 = Noise.noise(x*3*xyscale,y*3*xyscale,2) / 3;
+                double noise4 = Noise.noise(x*4*xyscale,y*4*xyscale,3) / 4;
+                double noise5 = Noise.noise(x*5*xyscale,y*5*xyscale,4) / 5;
+
+
+                float z = (float) (noiser + noise1 + noise2 + noise3 + noise4 + noise5) / 2 + 0.5f;
 
                 int iv = iy * countX + ix;
 
