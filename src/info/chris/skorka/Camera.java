@@ -16,11 +16,18 @@ public class Camera {
         this.ry = ry;
     }
 
-    public void moveForward(float d){
+    public void flyForward(float d){
 
         z -= d * Math.sin(ry);
         x += d * Math.cos(ry) * Math.sin(rx);
         y += d * Math.cos(ry) * Math.cos(rx);
+
+    }
+
+    public void moveForward(float d){
+
+        x += d * Math.sin(rx);
+        y += d * Math.cos(rx);
 
     }
 

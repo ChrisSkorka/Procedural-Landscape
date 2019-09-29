@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class Mesh {
 
-    private static final int NOISE_TEXTURE_SIZE = 5000;
+    private static final int NOISE_TEXTURE_SIZE = 100;
 
     private Shader shader;
     private Transformation transformation = new Transformation();
@@ -21,63 +21,8 @@ public class Mesh {
     private float[] heightTexture;
     private float[] noiseTexture;
 
-    public static Mesh fromStochasticFractalHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY, float[]texture){
-
-        Random random = new Random(0x123456789ABCDEFL);
-
-        float dx = (right - left) / (countX - 1);
-        float dy = (top - bottom) / (countY - 1);
-
-        Vertex[] vertices = new Vertex[countY * countX];
-        int[] indices = new int[(countX-1) * (countY-1) * 4];
-
-        for(int ix = 0; ix < countX; ix += 16){
-            float x = left + ix * dx;
-            for(int iy = 0; iy < countY; iy += 16){
-                float y = bottom + iy * dy;
-                float z = random.nextFloat() * height;
-                int iv = iy * countX + ix;
-
-                vertices[iv] = new Vertex(x, y, z);
-            }
-        }
-
-        for(int ix = 0; ix < countX; ix += 8){
-            float x = left + ix * dx;
-            for(int iy = 0; iy < countY; iy += 8){
-                if(ix % 16 != 0 && iy % 16 != 0) {
-                    float y = bottom + iy * dy;
-                    float z = random.nextFloat() * height;
-                    int iv = iy * countX + ix;
-
-                    vertices[iv] = new Vertex(x, y, z);
-                }
-            }
-        }
-
-
-
-        // construct quads indices
-        for(int ix = 0; ix < countX-1; ix++){
-            for(int iy = 0; iy < countY-1; iy++){
-
-                int iv = 4 * (iy * (countX - 1) + ix);
-
-                indices[iv + 0] = (iy + 0) * countX + ix + 0;
-                indices[iv + 1] = (iy + 0) * countX + ix + 1;
-                indices[iv + 2] = (iy + 1) * countX + ix + 1;
-                indices[iv + 3] = (iy + 1) * countX + ix + 0;
-            }
-        }
-
-
-
-        return new Mesh(vertices, indices, texture);
-    }
-
     public static Mesh fromPerlinNoiseHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY, float[]texture){
 
-        Random random = new Random(0x123456789ABCDEFL);
         Noise noise = new Noise(5, 0, height);
 
         float dx = (right - left) / (countX - 1);

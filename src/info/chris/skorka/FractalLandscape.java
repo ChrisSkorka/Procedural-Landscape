@@ -80,44 +80,6 @@ public class FractalLandscape {
                 237/255f, 236/255f, 225/255f, 1f,
                 237/255f, 236/255f, 225/255f, 1f,
         };
-//        float[] heightColors = {
-//                204/255f, 204/255f, 131/255f, 1f,
-//                204/255f, 204/255f, 131/255f, 1f,
-//                204/255f, 204/255f, 131/255f, 1f,
-//                204/255f, 204/255f, 131/255f, 1f,
-//                157/255f, 204/255f, 131/255f, 1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                252/255f, 250/255f, 242/255f, 1f,
-//                252/255f, 250/255f, 242/255f, 1f,
-//                252/255f, 250/255f, 242/255f, 1f,
-//                252/255f, 250/255f, 242/255f, 1f,
-//        };
-//        float[] heightColors = {
-//                204/255f, 204/255f, 131/255f, 1f,
-//                204/255f, 204/255f, 131/255f, 1f,
-//                204/255f, 204/255f, 131/255f, 1f,
-//                157/255f, 204/255f, 131/255f, 1f,
-//                157/255f, 204/255f, 131/255f, 1f,
-//                157/255f, 204/255f, 131/255f, 1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                31/255f,  166/255f, 87/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                135/255f, 119/255f, 61/255f,  1f,
-//                252/255f, 250/255f, 242/255f, 1f,
-//                252/255f, 250/255f, 242/255f, 1f,
-//                252/255f, 250/255f, 242/255f, 1f,
-//        };
 
         Mesh terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS,1.0f, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors);
         terrain.setShader(shader);
@@ -134,7 +96,7 @@ public class FractalLandscape {
             public void onDraw(long millis, long delta) {
 
                 Transformation transformation = new Transformation();
-                transformation.projection(55, (float)WIDTH/HEIGHT, 0.1f, 100f);
+                transformation.projection(55, (float)WIDTH/HEIGHT, 0.01f, 100f);
 //                transformation.orthogonal(-1,1,-1,1,-1f,1f);
 
 
