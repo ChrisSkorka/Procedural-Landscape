@@ -114,6 +114,10 @@ public class OpenGlWindow {
             if(mouseEventListener != null)
                 mouseEventListener.onMouseMove(xpos, ypos);
         });
+        glfwSetScrollCallback(window, (long window, double xoffset, double yoffset) -> {
+            if(mouseEventListener != null)
+                mouseEventListener.onMouseScroll(xoffset, yoffset);
+        });
 
 //        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -200,8 +204,8 @@ public class OpenGlWindow {
             glEnable(GL_DEPTH_TEST);
             glDepthMask(true);
             glDepthFunc(GL_GREATER);
-            // glEnable(GL_BLEND);
-            // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glClearColor(backgroundRed, backgroundGreen, backgroundBlue, backgroundAlpha);
             glClearDepth(0);
@@ -345,6 +349,7 @@ public class OpenGlWindow {
      */
     public static abstract class MouseEventListener{
         public abstract void onMouseMove(double x, double y);
+        public abstract void onMouseScroll(double x, double y);
         public abstract void onMouseDown(int button);
         public abstract void onMouseUp(int button);
 

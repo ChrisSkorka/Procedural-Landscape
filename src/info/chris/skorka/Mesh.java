@@ -16,17 +16,9 @@ public class Mesh {
     private int[] indices;
     private int vertexBufferID, positionBufferID, indexBufferID, textureID;
 
-    private float[]colors = {
-            204/255f, 204/255f, 131/255f, 1f,
-            157/255f, 204/255f, 131/255f, 1f,
-            31/255f,  166/255f, 87/255f,  1f,
-            31/255f,  166/255f, 87/255f,  1f,
-            135/255f, 119/255f, 61/255f,  1f,
-            135/255f, 119/255f, 61/255f,  1f,
-            252/255f, 250/255f, 242/255f, 1f,
-    };
+    private float[] texture;
 
-    public static Mesh fromStochasticFractalHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY){
+    public static Mesh fromStochasticFractalHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY, float[]texture){
 
         Random random = new Random(0x123456789ABCDEFL);
 
@@ -63,12 +55,13 @@ public class Mesh {
 
 
 
-        return new Mesh(vertices, indices);
+        return new Mesh(vertices, indices, texture);
     }
 
-    public Mesh(Vertex[]  vertices, int[] indices){
+    public Mesh(Vertex[]  vertices, int[] indices, float[]texture){
         this.vertices = vertices;
         this.indices = indices;
+        this.texture = texture;
 
         vertexBufferID = GL30.glGenVertexArrays();
         GL30.glBindVertexArray(vertexBufferID);
@@ -90,15 +83,15 @@ public class Mesh {
         GL15.glBufferData(GL15.GL_ELEMENT_ARRAY_BUFFER, indicesBuffer, GL15.GL_STATIC_DRAW);
         GL15.glBindBuffer(GL15.GL_ELEMENT_ARRAY_BUFFER, 0);
 
-        FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(colors.length);
-        textureBuffer.put(colors).flip();
+        FloatBuffer textureBuffer = MemoryUtil.memAllocFloat(texture.length);
+        textureBuffer.put(texture).flip();
 
         textureID = GL46.glGenTextures();
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, textureID);
         GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
         GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GL11.glTexParameteri(GL11.GL_TEXTURE_1D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL11.GL_RGBA, colors.length/4, 0,GL11.GL_RGBA, GL11.GL_FLOAT, textureBuffer);
+        GL11.glTexImage1D(GL11.GL_TEXTURE_1D, 0, GL11.GL_RGBA, texture.length/4, 0,GL11.GL_RGBA, GL11.GL_FLOAT, textureBuffer);
         GL11.glBindTexture(GL11.GL_TEXTURE_1D, textureID);
     }
 
@@ -142,6 +135,18 @@ public class Mesh {
 
     public void setTransformation(Transformation transformation) {
         this.transformation = transformation;
+    }
+
+    public void set1DTexture(float[] texture){
+        this.texture = texture;
+    }
+
+    public void setVertices(Vertex[] vertices) {
+        this.vertices = vertices;
+    }
+
+    public void setIndices(int[]indices) {
+        this.indices = indices;
     }
 
     public Vertex[] getVertices() {

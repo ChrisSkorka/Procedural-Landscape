@@ -17,6 +17,8 @@ public class FractalLandscape {
     private float moveForward = 0;
     private float moveSideways = 0;
 
+    private float waterHeight = 0.5f;
+
     OpenGlWindow window;
 
     public static void main(String[] args) {
@@ -40,16 +42,30 @@ public class FractalLandscape {
 
         Shader shader = new Shader("/landscape");
 
-        Mesh mesh = Mesh.fromStochasticFractalHeightMap(-1,1,-1,1,1.0f,20,10);
-//        Mesh mesh = new Mesh(new Vertex[]{
-//                new Vertex(-1f, -1f, 0),
-//                new Vertex(1f, -1f, 0),
-//                new Vertex(1f, 1f, 0),
-//                new Vertex(-1f, 1f, 1f),
-//        }, new int[]{
-//                0,1,2,3
-//        });
-        mesh.setShader(shader);
+        float[] heightColors = {
+                204/255f, 204/255f, 131/255f, 1f,
+                157/255f, 204/255f, 131/255f, 1f,
+                31/255f,  166/255f, 87/255f,  1f,
+                31/255f,  166/255f, 87/255f,  1f,
+                135/255f, 119/255f, 61/255f,  1f,
+                135/255f, 119/255f, 61/255f,  1f,
+                252/255f, 250/255f, 242/255f, 1f,
+        };
+
+        Mesh terrain = Mesh.fromStochasticFractalHeightMap(-1,1,-1,1,1.0f,20,10, heightColors);
+        terrain.setShader(shader);
+
+        Mesh water = new Mesh(new Vertex[]{
+                new Vertex(-1f, -1f, 0),
+                new Vertex( 1f, -1f, 0),
+                new Vertex( 1f,  1f, 0),
+                new Vertex(-1f,  1f, 0),
+        }, new int[]{
+                0,1,2,3
+        }, new float[]{
+            0/255f, 90/255f, 190/255f, 0.7f
+        });
+        water.setShader(shader);
 
         Camera camera = new Camera(0,0,1,0,0);
 
@@ -58,13 +74,8 @@ public class FractalLandscape {
             public void onDraw(long millis, long delta) {
 
                 Transformation transformation = new Transformation();
-                transformation.projection(90, (float)WIDTH/HEIGHT, 0.1f, 100f);
+                transformation.projection(55, (float)WIDTH/HEIGHT, 0.1f, 100f);
                 // transformation.orthogonal(-1,1,-1,1,-1f,1f);
-                // transformation.scale(0.4f, 0.4f, 0.4f);
-                // transformation.rotateAbout(0,0,0f, 0f,0,0);
-                // transformation.rotateX(1.0f);
-                // transformation.rotateZ(millis * 0.001f);
-                // transformation.rotateAbout(0,0,0,0,0.01f,0);
 
                 float dForward = delta / 1000f * moveForward;
                 float dSideways = delta / 1000f * moveSideways;
@@ -73,8 +84,12 @@ public class FractalLandscape {
 
                 transformation.transform(camera.getTransformation());
 
-                mesh.setTransformation(transformation);
-                mesh.render();
+                terrain.setTransformation(transformation);
+                terrain.render();
+
+                transformation.translate(0,0,waterHeight);
+                water.setTransformation(transformation);
+                water.render();
             }
         });
 
@@ -127,6 +142,11 @@ public class FractalLandscape {
 
                 lastMouseX = x;
                 lastMouseY = y;
+            }
+
+            @Override
+            public void onMouseScroll(double x, double y) {
+                waterHeight += y * 0.01;
             }
 
             @Override
