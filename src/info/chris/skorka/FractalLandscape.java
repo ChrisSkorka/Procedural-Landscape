@@ -16,6 +16,7 @@ public class FractalLandscape {
     private double lastMouseY = 0;
     private float moveForward = 0;
     private float moveSideways = 0;
+    private float moveVertically = 0;
 
     private float waterHeight = 0.5f;
 
@@ -75,14 +76,18 @@ public class FractalLandscape {
 
                 Transformation transformation = new Transformation();
                 transformation.projection(55, (float)WIDTH/HEIGHT, 0.1f, 100f);
-                // transformation.orthogonal(-1,1,-1,1,-1f,1f);
+//                transformation.orthogonal(-1,1,-1,1,-1f,1f);
+
 
                 float dForward = delta / 1000f * moveForward;
                 float dSideways = delta / 1000f * moveSideways;
+                float dVertical = delta / 1000f * moveVertically;
                 camera.moveForward(dForward);
                 camera.moveSideways(dSideways);
+                camera.moveVertical(dVertical);
 
                 transformation.transform(camera.getTransformation());
+//                transformation.scale(1,1,0.2f);
 
                 terrain.setTransformation(transformation);
                 terrain.render();
@@ -113,6 +118,12 @@ public class FractalLandscape {
                     case GLFW_KEY_A:
                         moveSideways = -1.0f;
                         break;
+                    case GLFW_KEY_SPACE:
+                        moveVertically = 1.0f;
+                        break;
+                    case GLFW_KEY_LEFT_SHIFT:
+                        moveVertically = -1.0f;
+                        break;
                 }
             }
 
@@ -130,6 +141,10 @@ public class FractalLandscape {
                     case GLFW_KEY_RIGHT:
                     case GLFW_KEY_D:
                         moveSideways = 0.0f;
+                        break;
+                    case GLFW_KEY_SPACE:
+                    case GLFW_KEY_LEFT_SHIFT:
+                        moveVertically = 0.0f;
                         break;
                 }
             }

@@ -31,6 +31,12 @@ public class Camera {
 
     }
 
+    public void moveVertical(float d){
+
+        z += d;
+
+    }
+
     public void rotate(float dx, float dy){
         rx += ROTATION_SPEED * dx;
         ry += ROTATION_SPEED * dy;
