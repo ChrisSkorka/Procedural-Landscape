@@ -4,7 +4,6 @@ import java.util.Random;
 import static org.lwjgl.glfw.GLFW.*;
 
 public class FractalLandscape {
-    private static Random random = new Random();
 
     // Configurations and settings
 
@@ -12,19 +11,25 @@ public class FractalLandscape {
     private static final int WIDTH = 1500;
     private static final int HEIGHT = 900;
 
+    // map generation parameters
     private static final int MAP_RADIUS = 3;
     private static final int MAP_RESOLUTION = 100;
+    private float waterHeight = 0.4f;
 
+    // controls state
     private double lastMouseX = 0;
     private double lastMouseY = 0;
     private float moveForward = 0;
     private float moveSideways = 0;
     private float moveVertically = 0;
 
-    private float waterHeight = 0.4f;
-
+    // Open GL window
     OpenGlWindow window;
 
+    /**
+     * starts a window with a generated map
+     * @param args
+     */
     public static void main(String[] args) {
 
         FractalLandscape fractalLandscape = new FractalLandscape();
@@ -32,6 +37,9 @@ public class FractalLandscape {
 
     }
 
+    /**
+     * window with generated terrain map, hardware accelerated graphics and controls.
+     */
     public FractalLandscape(){
 
 
@@ -42,10 +50,13 @@ public class FractalLandscape {
                 "Fractal Landscape"
         );
 
+        // sky
         window.setBackground(115/255f, 210/255f, 255/255f, 1f);
 
+        // load landscape shaders
         Shader shader = new Shader("/landscape");
 
+        // height based colours
         float[] heightColors = {
                 204/255f, 204/255f, 131/255f, 1f,
                 204/255f, 204/255f, 131/255f, 1f,
@@ -81,25 +92,30 @@ public class FractalLandscape {
                 237/255f, 236/255f, 225/255f, 1f,
         };
 
+        // generate terrain mesh
         Mesh terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS,1.0f, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors);
         terrain.setShader(shader);
 
+        // generate water mesh
         Mesh water = Mesh.fromPlane(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, 0, new float[]{
                 0/255f, 90/255f, 190/255f, 0.5f
         });
         water.setShader(shader);
 
+        // create camera
         Camera camera = new Camera(0,0,1,0,0);
 
+        // on draw event, compute transformation and draw terrain and water
         window.setDrawEventListener(new OpenGlWindow.DrawEventListener() {
             @Override
             public void onDraw(long millis, long delta) {
 
+                // compute perspective perspectiveProjection transformation
                 Transformation transformation = new Transformation();
-                transformation.projection(55, (float)WIDTH/HEIGHT, 0.01f, 100f);
-//                transformation.orthogonal(-1,1,-1,1,-1f,1f);
+                transformation.perspectiveProjection(55, (float)WIDTH/HEIGHT, 0.01f, 100f);
+//                transformation.orthogonalProjection(-1,1,-1,1,-1f,1f);
 
-
+                // compute camera transformation
                 float dForward = delta / 1000f * moveForward;
                 float dSideways = delta / 1000f * moveSideways;
                 float dVertical = delta / 1000f * moveVertically;
@@ -108,17 +124,19 @@ public class FractalLandscape {
                 camera.moveVertical(dVertical);
 
                 transformation.transform(camera.getTransformation());
-//                transformation.scale(1,1,0.2f);
 
+                // render terrain mesh
                 terrain.setTransformation(transformation);
                 terrain.render();
 
-                transformation.translate(0,0,waterHeight);
+                // adjust water level and render water mesh
+                transformation.translate(0,0, waterHeight);
                 water.setTransformation(transformation);
                 water.render();
             }
         });
 
+        // keyboard events, set control states
         window.setKeyboardEventListener(new OpenGlWindow.KeyboardEventListener() {
             @Override
             public void onKeyDown(int key) {
@@ -171,17 +189,23 @@ public class FractalLandscape {
             }
         });
 
+        // mouse events
         window.setMouseEventListener(new OpenGlWindow.MouseEventListener() {
             @Override
             public void onMouseMove(double x, double y) {
+
+                // rotate camera by change in mouse position
                 camera.rotate((float)(x-lastMouseX), (float)(y-lastMouseY));
 
+                // remember mouse position
                 lastMouseX = x;
                 lastMouseY = y;
             }
 
             @Override
             public void onMouseScroll(double x, double y) {
+
+                // adjust water level based on scroll change
                 waterHeight += y * 0.01;
             }
 
@@ -197,6 +221,9 @@ public class FractalLandscape {
         });
     }
 
+    /**
+     * Once setup, open the window and start
+     */
     public void open(){
         window.open();
     }

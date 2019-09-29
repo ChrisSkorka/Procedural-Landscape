@@ -21,16 +21,32 @@ public class Mesh {
     private float[] heightTexture;
     private float[] noiseTexture;
 
+    /**
+     * generate a height map based mesh using octave perlin noise
+     * @param left
+     * @param right
+     * @param bottom
+     * @param top
+     * @param height
+     * @param countX
+     * @param countY
+     * @param texture
+     * @return mesh
+     */
     public static Mesh fromPerlinNoiseHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY, float[]texture){
 
+        // randomised octave perlin noise map
         Noise noise = new Noise(5, 0, height);
 
+        // steps along x and y axis
         float dx = (right - left) / (countX - 1);
         float dy = (top - bottom) / (countY - 1);
 
+        // vertices
         Vertex[] vertices = new Vertex[countY * countX];
         int[] indices = new int[(countX-1) * (countY-1) * 4];
 
+        // iterate over the map and generate vertices using noise
         for(int ix = 0; ix < countX; ix++){
             float x = left + ix * dx;
             for(int iy = 0; iy < countY; iy++){
@@ -57,11 +73,19 @@ public class Mesh {
             }
         }
 
-
-
         return new Mesh(vertices, indices, texture);
     }
 
+    /**
+     * generate a plane mesh
+     * @param left
+     * @param right
+     * @param bottom
+     * @param top
+     * @param height
+     * @param texture
+     * @return mesh
+     */
     public static Mesh fromPlane(float left, float right, float bottom, float top, float height, float[]texture){
         return new Mesh(new Vertex[]{
                 new Vertex(left, bottom, height),
@@ -73,6 +97,12 @@ public class Mesh {
         }, texture);
     }
 
+    /**
+     * OpenGL compatible mesh with height based texture and monochrome noise texture
+     * @param vertices
+     * @param indices
+     * @param heightTexture
+     */
     public Mesh(Vertex[]  vertices, int[] indices, float[] heightTexture){
         this.vertices = vertices;
         this.indices = indices;
@@ -124,6 +154,13 @@ public class Mesh {
         GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
     }
 
+    /**
+     * store attribute data into a new buffer
+     * @param data
+     * @param index
+     * @param size
+     * @return bufferID
+     */
     private int storeAttributeData(float[] data, int index, int size){
 
         FloatBuffer buffer = MemoryUtil.memAllocFloat(data.length);
@@ -138,6 +175,9 @@ public class Mesh {
         return bufferID;
     }
 
+    /**
+     * render the mesh with the associated shader and transformation
+     */
     public void render(){
         GL30.glBindVertexArray(vertexBufferID);
         GL30.glEnableVertexAttribArray(0);
@@ -160,6 +200,12 @@ public class Mesh {
         GL30.glBindVertexArray(0);
     }
 
+    /**
+     * generate monochrome noise
+     * @param x
+     * @param y
+     * @return monochrome noise map
+     */
     private float[] getNoiseTexture(int x, int y){
 
         Random random = new Random();

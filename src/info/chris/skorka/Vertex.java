@@ -5,21 +5,7 @@ package info.chris.skorka;
  */
 public class Vertex {
 
-    private float x, y, z, h;
-
-    /**
-     * Create vertex from doubles coordinates
-     * @param x x-coordinate
-     * @param y y-coordinate
-     * @param z z-coordinate
-     * @param h h-parameter
-     */
-    public Vertex(float x, float y, float z, float h){
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.h = h;
-    }
+    private float x, y, z;
 
     /**
      * Create vertex from doubles coordinates
@@ -28,22 +14,32 @@ public class Vertex {
      * @param z z-coordinate
      */
     public Vertex(float x, float y, float z){
-        this(x,y,z,z);
+        this.x = x;
+        this.y = y;
+        this.z = z;
     }
 
+    /**
+     * get x component
+     * @return x component
+     */
     public float getX() {
         return x;
     }
 
+    /**
+     * get y component
+     * @return y component
+     */
     public float getY() {
         return y;
     }
 
+    /**
+     * get z component
+     * @return z component
+     */
     public float getZ() {
         return z;
-    }
-
-    public float getH() {
-        return h;
     }
 }

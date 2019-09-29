@@ -110,15 +110,19 @@ public class OpenGlWindow {
 
         });
 
+        // setup cursor position change event
         glfwSetCursorPosCallback(window, (long window, double xpos, double ypos) -> {
             if(mouseEventListener != null)
                 mouseEventListener.onMouseMove(xpos, ypos);
         });
+
+        // setup mouse scroll wheel change event
         glfwSetScrollCallback(window, (long window, double xoffset, double yoffset) -> {
             if(mouseEventListener != null)
                 mouseEventListener.onMouseScroll(xoffset, yoffset);
         });
 
+        // hide and capture mouse
 //        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
@@ -189,13 +193,6 @@ public class OpenGlWindow {
         // the window or has pressed the ESCAPE key.
         while ( !glfwWindowShouldClose(window) ) {
 
-//            glMatrixMode(GL_PROJECTION);
-//            glLoadIdentity();
-//            glOrtho(0, 1, 0, 1, 1.0f, -1.0f);
-//            glMatrixMode(GL_MODELVIEW);
-//            glLoadIdentity();
-//            glTranslated(1,1,1);
-
             glViewport(0,0,width,height);
 
             glEnable(GL_CULL_FACE);
@@ -259,20 +256,6 @@ public class OpenGlWindow {
 
     public void clear(){
         clear(backgroundRed, backgroundGreen, backgroundBlue, backgroundAlpha);
-    }
-
-    /**
-     * Sets the drawing color for the internal pixel() function.
-     * @param c color for pixel() to use
-     * @return bool false if no color is set (if c==null) and true otherwise
-     */
-    public boolean color(Color c){
-        if(c == null)
-            glColor4f(0,0,0,0);
-        else
-            glColor4f(c.getR(), c.getG(), c.getB(), c.getA());
-
-        return c != null;
     }
 
     /**

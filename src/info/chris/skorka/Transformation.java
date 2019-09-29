@@ -4,10 +4,16 @@ public class Transformation {
 
     private float[][] matrix = new float[4][4];
 
+    /**
+     * Holds a 4x4 transformation matrix
+     */
     public Transformation(){
         setIdentity();
     }
 
+    /**
+     * load identity matrix
+     */
     public void setIdentity(){
         matrix = new float[][]{
                 {1,0,0,0},
@@ -17,6 +23,10 @@ public class Transformation {
         };
     }
 
+    /**
+     * apply a transformation
+     * @param b 4x4 matrix to compounded to this transformation
+     */
     public void transform(float[][] b){
         float[][] a = matrix;
         matrix = new float[4][4];
@@ -30,11 +40,24 @@ public class Transformation {
         }
     }
 
+    /**
+     * apply a transformation
+     * @param transformation to compounded to this transformation
+     */
     public void transform(Transformation transformation){
         transform(transformation.matrix);
     }
 
-    public void orthogonal(float l, float r, float b, float t, float n, float f){
+    /**
+     * orthogonal projection, maps parameters bounding box to OpenGL's unit clip box
+     * @param l left
+     * @param r right
+     * @param b bottom
+     * @param t top
+     * @param n near
+     * @param f far
+     */
+    public void orthogonalProjection(float l, float r, float b, float t, float n, float f){
 
         transform(new float[][]{
                 {2/(r-l),   0,      0,          -(r+l)/(r-l)},
@@ -44,8 +67,17 @@ public class Transformation {
         });
     }
 
-    public void projection(float fov, float aspect, float f, float n){
+    /**
+     * perspective projection, applys perspective convergence, maps parameters perspective bounding box to OpenGL's
+     * unit clip box
+     * @param fov Field of view
+     * @param aspect aspect ration (width / height)
+     * @param f far
+     * @param n near
+     */
+    public void perspectiveProjection(float fov, float aspect, float f, float n){
 
+        // tan(fov/2)
         float tanFov_2 = (float)(Math.tan(Math.toRadians(fov)/2));
 
         transform(new float[][]{
@@ -56,6 +88,12 @@ public class Transformation {
         });
     }
 
+    /**
+     * apply a translation transformation
+     * @param x
+     * @param y
+     * @param z
+     */
     public void translate(float x, float y, float z){
         transform(new float[][]{
                 {1,0,0,x},
@@ -65,6 +103,12 @@ public class Transformation {
         });
     }
 
+    /**
+     * apply a scale transformation
+     * @param x
+     * @param y
+     * @param z
+     */
     public void scale(float x, float y, float z){
         transform(new float[][]{
                 {x,0,0,0},
@@ -74,6 +118,10 @@ public class Transformation {
         });
     }
 
+    /**
+     * apply a rotation transformation about the x axis
+     * @param r
+     */
     public void rotateX(float r){
         transform(new float[][]{
                 {1,0,0,0},
@@ -83,6 +131,10 @@ public class Transformation {
         });
     }
 
+    /**
+     * apply a rotation transformation about the y axis
+     * @param r
+     */
     public void rotateY(float r){
         transform(new float[][]{
                 {(float)Math.cos(r),0,(float)Math.sin(r),0},
@@ -92,6 +144,10 @@ public class Transformation {
         });
     }
 
+    /**
+     * apply a rotation transformation about the z axis
+     * @param r
+     */
     public void rotateZ(float r){
         transform(new float[][]{
                 {(float)Math.cos(r),(float)-Math.sin(r),0,0},
@@ -101,6 +157,15 @@ public class Transformation {
         });
     }
 
+    /**
+     * apply a rotation transformation about the x, y and z axis about the ax, ay, az point
+     * @param ax
+     * @param ay
+     * @param az
+     * @param rx
+     * @param ry
+     * @param rz
+     */
     public void rotateAbout(float ax, float ay, float az, float rx, float ry, float rz){
         translate(ax, ay, az);
         rotateX(rx);
@@ -109,6 +174,10 @@ public class Transformation {
         translate(-ax, -ay, -az);
     }
 
+    /**
+     * convert the 4x4 matrix into a flattened array
+     * @return flat array representing the 4x4 transformation matrix
+     */
     public float[] toFlatArray(){
         float[] flat = new float[16];
 
