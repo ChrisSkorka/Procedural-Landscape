@@ -17,17 +17,13 @@ public class Noise {
      * @param min lowest sample value
      * @param max highest sample value
      */
-    public Noise(int octaves, double min, double max){
+    public Noise(int octaves, double min, double max, long seed){
         this.octaves = octaves;
         this.min = min;
         this.max = max;
 
         scale = 0.5f/(2-Math.pow(2,1-octaves));
         shift = 0.5;
-
-        long seed = new Random().nextLong();
-        System.out.println(seed);
-//        seed = -1618586767923842593L;
 
         Random random = new Random(seed);
         for (int i=0; i < 256 ; i++) p[256+i] = p[i] = random.nextInt(256);

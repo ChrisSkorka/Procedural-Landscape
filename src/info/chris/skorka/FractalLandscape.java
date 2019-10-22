@@ -1,4 +1,5 @@
 package info.chris.skorka;
+
 import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -12,8 +13,10 @@ public class FractalLandscape {
     private static final int HEIGHT = 900;
 
     // map generation parameters
-    private static final int MAP_RADIUS = 3;
-    private static final int MAP_RESOLUTION = 100;
+    private static int MAP_RADIUS = 3;
+    private static int MAP_RESOLUTION = 1000;
+    private static int NUM_OCTAVES = 5;
+    private static long SEED = new Random().nextLong();
     private float waterHeight = 0.4f;
 
     // controls state
@@ -24,7 +27,9 @@ public class FractalLandscape {
     private float moveVertically = 0;
 
     // Open GL window
-    OpenGlWindow window;
+    private OpenGlWindow window;
+
+    private Mesh terrain;
 
     /**
      * starts a window with a generated map
@@ -93,7 +98,7 @@ public class FractalLandscape {
         };
 
         // generate terrain mesh
-        Mesh terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS,1.0f, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors);
+        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
         terrain.setShader(shader);
 
         // generate water mesh
@@ -184,6 +189,31 @@ public class FractalLandscape {
                     case GLFW_KEY_SPACE:
                     case GLFW_KEY_LEFT_SHIFT:
                         moveVertically = 0.0f;
+                        break;
+                    case GLFW_KEY_R:
+                        SEED = new Random().nextLong();
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
+                        break;
+                    case GLFW_KEY_Z:
+                        NUM_OCTAVES--;
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
+                        break;
+                    case GLFW_KEY_X:
+                        NUM_OCTAVES++;
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
+                        break;
+                    case GLFW_KEY_C:
+                        MAP_RESOLUTION /= 2;
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
+                        break;
+                    case GLFW_KEY_V:
+                        MAP_RESOLUTION *= 2;
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
                         break;
                 }
             }

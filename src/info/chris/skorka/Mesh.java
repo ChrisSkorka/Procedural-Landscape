@@ -27,16 +27,16 @@ public class Mesh {
      * @param right
      * @param bottom
      * @param top
-     * @param height
+     * @param octaves
      * @param countX
      * @param countY
      * @param texture
      * @return mesh
      */
-    public static Mesh fromPerlinNoiseHeightMap(float left, float right, float bottom, float top, float height, int countX, int countY, float[]texture){
+    public static Mesh fromPerlinNoiseHeightMap(float left, float right, float bottom, float top, int octaves, int countX, int countY, float[]texture, long seed){
 
         // randomised octave perlin noise map
-        Noise noise = new Noise(5, 0, height);
+        Noise noise = new Noise(octaves, 0, 1, seed);
 
         // steps along x and y axis
         float dx = (right - left) / (countX - 1);
