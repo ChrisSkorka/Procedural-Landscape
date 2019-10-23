@@ -1,5 +1,7 @@
 package info.chris.skorka;
 
+import org.lwjgl.opengl.GL11;
+
 import java.util.Random;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -25,6 +27,7 @@ public class FractalLandscape {
     private float moveForward = 0;
     private float moveSideways = 0;
     private float moveVertically = 0;
+    private boolean lockLookAround = false;
 
     // Open GL window
     private OpenGlWindow window;
@@ -162,10 +165,12 @@ public class FractalLandscape {
                     case GLFW_KEY_A:
                         moveSideways = -1.0f;
                         break;
-                    case GLFW_KEY_SPACE:
+//                    case GLFW_KEY_SPACE:
+                    case GLFW_KEY_E:
                         moveVertically = 1.0f;
                         break;
-                    case GLFW_KEY_LEFT_SHIFT:
+//                    case GLFW_KEY_LEFT_SHIFT:
+                    case GLFW_KEY_Q:
                         moveVertically = -1.0f;
                         break;
                 }
@@ -186,8 +191,10 @@ public class FractalLandscape {
                     case GLFW_KEY_D:
                         moveSideways = 0.0f;
                         break;
-                    case GLFW_KEY_SPACE:
-                    case GLFW_KEY_LEFT_SHIFT:
+//                    case GLFW_KEY_SPACE:
+//                    case GLFW_KEY_LEFT_SHIFT:
+                    case GLFW_KEY_Q:
+                    case GLFW_KEY_E:
                         moveVertically = 0.0f;
                         break;
                     case GLFW_KEY_R:
@@ -199,19 +206,50 @@ public class FractalLandscape {
                         NUM_OCTAVES--;
                         terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
                         terrain.setShader(shader);
+                        System.out.printf("MAP_RESOLUTION=%d, NUM_OCTAVES=%d\n", MAP_RESOLUTION, NUM_OCTAVES);
                         break;
                     case GLFW_KEY_X:
                         NUM_OCTAVES++;
                         terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
                         terrain.setShader(shader);
+                        System.out.printf("MAP_RESOLUTION=%d, NUM_OCTAVES=%d\n", MAP_RESOLUTION, NUM_OCTAVES);
                         break;
                     case GLFW_KEY_C:
                         MAP_RESOLUTION /= 2;
                         terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
                         terrain.setShader(shader);
+                        System.out.printf("MAP_RESOLUTION=%d, NUM_OCTAVES=%d\n", MAP_RESOLUTION, NUM_OCTAVES);
                         break;
                     case GLFW_KEY_V:
                         MAP_RESOLUTION *= 2;
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
+                        System.out.printf("MAP_RESOLUTION=%d, NUM_OCTAVES=%d\n", MAP_RESOLUTION, NUM_OCTAVES);
+                        break;
+                    case GLFW_KEY_H:
+                        Mesh.HEIGHT_TEXTURE_INTERPOLATION = Mesh.HEIGHT_TEXTURE_INTERPOLATION == GL11.GL_NEAREST ? GL11.GL_LINEAR : GL11.GL_NEAREST;
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
+                        break;
+                    case GLFW_KEY_N:
+                        Mesh.NOISE_TEXTURE_INTERPOLATION = Mesh.NOISE_TEXTURE_INTERPOLATION == GL11.GL_NEAREST ? GL11.GL_LINEAR : GL11.GL_NEAREST;
+                        terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
+                        terrain.setShader(shader);
+                        break;
+                    case GLFW_KEY_L:
+                        lockLookAround = !lockLookAround;
+                        break;
+                    case GLFW_KEY_1:
+                    case GLFW_KEY_2:
+                    case GLFW_KEY_3:
+                    case GLFW_KEY_4:
+                    case GLFW_KEY_5:
+                    case GLFW_KEY_6:
+                    case GLFW_KEY_7:
+                    case GLFW_KEY_8:
+                    case GLFW_KEY_9:
+                    case GLFW_KEY_0:
+                        SEED = key;
                         terrain = Mesh.fromPerlinNoiseHeightMap(-MAP_RADIUS, MAP_RADIUS, -MAP_RADIUS, MAP_RADIUS, NUM_OCTAVES, MAP_RADIUS * MAP_RESOLUTION, MAP_RADIUS * MAP_RESOLUTION, heightColors, SEED);
                         terrain.setShader(shader);
                         break;
@@ -223,6 +261,9 @@ public class FractalLandscape {
         window.setMouseEventListener(new OpenGlWindow.MouseEventListener() {
             @Override
             public void onMouseMove(double x, double y) {
+
+                if(lockLookAround)
+                    return;
 
                 // rotate camera by change in mouse position
                 camera.rotate((float)(x-lastMouseX), (float)(y-lastMouseY));
